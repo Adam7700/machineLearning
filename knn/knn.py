@@ -43,8 +43,12 @@ def createDistanceMatrix(rawData):
 
 def classify(point, distMatrix, k, weighted):
     distances = []
-    for row in range(0, point):
+
+    #get distances of all points before this one
+    for row in range(0, len(distMatrix[point])):
         distances.append((distMatrix[point][row], distMatrix[row][row]))
+
+    #get distances of all points after this one
     for row in range(point+1, len(distMatrix)):
         distances.append((distMatrix[row][point], distMatrix[row][row]))
 
@@ -54,13 +58,13 @@ def classify(point, distMatrix, k, weighted):
         closest = []
         for i in range(0,k):
             closest.append(s[i][1])
-
         classification = max(closest, key=closest.count)
+
     else:
         weights = {0:0, 1:0, 2:0}
         for classNum in s:
             if classNum[0] == 0.0:
-                weights[classNum[1]] +=classNum[0]
+                weights[classNum[1]] +=1
             else:
                 weights[classNum[1]] += 1/float(classNum[0])
 
@@ -72,21 +76,21 @@ def getErrorRates(errorDict, totalPoints, weighted):
     if weighted:
         print("\nDistance Weighted Error Rates: ")
     else:
-        print('Non Distance Weighted Error Rates: ')
+        print('\nNon Distance Weighted Error Rates: ')
     for key in errorDict.keys():
         print(key + ': ' + str(errorDict[key] / float(totalPoints)))
 
 def testK(distanceMatrix, rawData, weighted):
-    kError= {'k3':0, 'k5':0, 'k7':0, 'k9':0}
+    kError= {'k1':0,'k3':0, 'k5':0, 'k7':0, 'k9':0}
     for point in range(len(distanceMatrix)):
         trueClass = distanceMatrix[point][point]
-        print("Point " + str(point) + ': ' + str(rawData[point]))
-        for k in range(3,10,2):
+    #    print("Point " + str(point) + ': ' + str(rawData[point]))
+        for k in range(1,10,2):
             predictedClass = classify(point, distanceMatrix, k, weighted)
             if predictedClass != trueClass:
                 kError['k'+str(k)]+=1
-            print('k='+str(k)+': '+str(predictedClass))
-        print('True class: ' + str(trueClass)+'\n')
+    #        print('k='+str(k)+': '+str(predictedClass))
+#        print('True class: ' + str(trueClass)+'\n')
     #totalPoints = len(rawData)
     #getErrorRates(kError, totalPoints, weighted)
     return kError
